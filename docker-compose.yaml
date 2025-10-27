@@ -1,0 +1,12 @@
+services:
+  frontend:
+    build: ./frontend
+    ports:
+      - "8282:80"
+    restart: on-failure
+
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    restart: on-failure

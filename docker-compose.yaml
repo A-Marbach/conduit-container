@@ -10,8 +10,7 @@ services:
     volumes:
       - ./frontend:/app  
     restart: on-failure
-    env_file:
-      - ./frontend/.env 
+
 
   backend:
     build:

@@ -6,11 +6,10 @@ The project is designed to be easy to deploy, with persistent data storage and c
 ## Table of Contents
 - [Quickstart](#quickstart)
 - [Usage](#usage)
-- [Environment Variables](#environment-variables)
-- [Volumes](#volumes)
-- [Restarting and Stopping Containers](#restarting-and-stopping-containers)
+    - [Environment Variables](#environment-variables)
+    - [Volumes](#volumes)
+    - [Restarting and Stopping Containers](#restarting-and-stopping-containers)
 - [Extras](#extras)
-- [Logs](#logs)
 
 ## Quickstart
 
@@ -33,22 +32,16 @@ git submodule update --init --recursive
 
 ```bash
 cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
 ```
 
-4. Edit the .env files if you want custom credentials.
-Note: Do not commit .env to the repository; it contains sensitive information.
-
-5. Build the containers:
+4. Build the containers:
 
 ```bash
 docker-compose build --no-cache
-```
-6. Start the containers:
-```bash
 docker-compose up -d
 ```
-7. Open the application in your browser:
+
+5. Open the application in your browser:
 * Frontend: http://<your_vm_ip>:8282
 * Backend API: http://<your_vm_ip>:5000/api/
 
@@ -101,3 +94,6 @@ docker-compose down
 
 
 
+> **Note:**  
+> Edit the `.env` files if you want custom credentials.  
+> Do **not** commit `.env` files to the repository, as they contain sensitive information.

@@ -67,9 +67,9 @@ You can modify .env files or the environment: section in docker-compose.yaml for
 
 ```
 | Variable           | Description                       | Default                     |
-|-------------------|-----------------------------------|-----------------------------|
+|--------------------|-----------------------------------|-----------------------------|
 | DJANGO_SECRET_KEY  | Django secret key                 | changeme                    |
-| DATABASE_NAME      | Name of the PostgreSQL/SQLite DB | conduit                     |
+| DATABASE_NAME      | Name of the PostgreSQL/SQLite DB  | conduit                     |
 | DATABASE_USER      | Database username                 | user                        |
 | DATABASE_PASSWORD  | Database password                 | password                    |
 | DATABASE_HOST      | Database host                     | db                          |

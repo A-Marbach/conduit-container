@@ -1,6 +1,6 @@
 name: Deploy Conduit to VM
 
-# Trigger: Workflow läuft bei jedem Push in den main-Branch
+# Trigger: Workflow läuft bei jedem Push in den ausgewählten Branch
 on:
   push:
     branches:

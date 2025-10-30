@@ -25,15 +25,9 @@ jobs:
         key: ${{ secrets.SSH_KEY }}
         port: 22
         script: |
-          set -e  # Workflow stoppt sofort bei Fehlern
-          # Pfad zum Projekt auf der VM
+          set -e
           cd ~/conduit-container
-
-          # Pull neuester Änderungen
           git pull origin feature
-
-          # Docker Compose Build + Up (detached mode)
-          docker-compose up -d --build
-
-          # Optional: Logs der letzten 10 Zeilen prüfen
+          git submodule update --init --recursive
+          docker-compose up -d --build --force-recreate
           docker-compose logs --tail=10

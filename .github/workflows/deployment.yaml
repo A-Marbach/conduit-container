@@ -30,7 +30,7 @@ jobs:
           cd ~/conduit-container
 
           # Pull neuester Änderungen
-          git pull origin main
+          git pull origin feature
 
           # Docker Compose Build + Up (detached mode)
           docker-compose up -d --build

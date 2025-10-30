@@ -9,6 +9,8 @@ The project is designed to be easy to deploy, with persistent data storage and c
     - [Environment Variables](#environment-variables)
     - [Volumes](#volumes)
     - [Restarting and Stopping Containers](#restarting-and-stopping-containers)
+- [Security](#security)
+- [GitHub Actions Workflow](#github-actions-workflow)
 - [Extras](#extras)
 
 ## Quickstart
@@ -67,7 +69,6 @@ You can modify .env files or the environment: section in docker-compose.yaml for
 | DATABASE_PASSWORD  | Database password                 | password                    |
 | DATABASE_HOST      | Database host                     | db                          |
 | DATABASE_PORT      | Database port                     | 5432                        |
-| FRONTEND_API_URL   | Backend API URL for frontend      | http://localhost:5000/api/  |
 ```
 ## Volumes
 
@@ -84,6 +85,24 @@ Restart and Stopping containers:
 docker-compose restart
 docker-compose down
 ```
+## Security
+* Do not commit .env files, SSH keys, passwords, or any sensitive information to the repository.
+* Do not include IP addresses or credentials in the frontend code.
+
+
+### GitHub Actions Workflow
+
+The deployment workflow is defined in `.github/workflows/deployment.yaml`.  
+It handles:
+
+- SSH connection to the VM using repository secrets
+- Pulling the latest code from the branch
+- Building and starting containers via Docker Compose in detached mode
+- Stopping the workflow if any step fails
+
+> **Note:** Make sure this file is committed to the repository, otherwise GitHub Actions will not be able to run the workflow.
+
+
 ### Extras
 
 * You can add additional frontend features or backend apps as needed.

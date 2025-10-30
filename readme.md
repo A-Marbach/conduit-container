@@ -28,7 +28,7 @@ cd conduit-container
 ```bash
 git submodule update --init --recursive
 ```
-3. Copy the example environment files:
+3. Copy the example environment file:
 
 ```bash
 cp backend/.env.example backend/.env
@@ -84,7 +84,6 @@ Restart and Stopping containers:
 docker-compose restart
 docker-compose down
 ```
-
 ### Extras
 
 * You can add additional frontend features or backend apps as needed.
@@ -94,3 +93,6 @@ docker-compose down
 > **Note:**  
 > Edit the `.env` files if you want custom credentials.  
 > Do **not** commit `.env` files to the repository, as they contain sensitive information.
+
+
+# Trigger workflow test

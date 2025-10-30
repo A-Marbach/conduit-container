@@ -1,0 +1,38 @@
+name: Deploy Conduit to VM
+
+# Trigger: Workflow läuft bei jedem Push in den main-Branch
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1️⃣ Repository auschecken
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    # 2️⃣ SSH-Verbindung aufbauen und Container deployen
+    - name: Deploy via SSH
+      uses: appleboy/ssh-action@v0.1.7
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_KEY }}
+        port: 22
+        script: |
+          set -e  # Workflow stoppt sofort bei Fehlern
+          # Pfad zum Projekt auf der VM
+          cd ~/conduit-container
+
+          # Pull neuester Änderungen
+          git pull origin main
+
+          # Docker Compose Build + Up (detached mode)
+          docker-compose up -d --build
+
+          # Optional: Logs der letzten 10 Zeilen prüfen
+          docker-compose logs --tail=10

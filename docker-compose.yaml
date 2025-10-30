@@ -1,0 +1,26 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "8282:80"
+    volumes:
+      - frontend_data:/app/data   
+    restart: on-failure
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    volumes:
+      - backend_data:/app/data    
+    restart: on-failure
+    env_file:
+      - ./backend/.env
+
+volumes:
+  frontend_data:
+  backend_data:

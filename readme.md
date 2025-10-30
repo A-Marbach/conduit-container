@@ -79,12 +79,9 @@ Volumes ensure data persists even after container restarts or recreation.
 
 ### Restarting and Stopping Containers
 
-Restart containers:
+Restart and Stopping containers:
 ```bash
 docker-compose restart
-```
-Stop containers:
-```bash
 docker-compose down
 ```
 

@@ -110,11 +110,11 @@ The new deployment workflow uses GitHub Actions to:
 
 ```mermaid
 flowchart LR
-    A[GitHub Repository] -->|Push / PR merged| B[GitHub Actions Workflow]
-    B --> C[Build Docker Images]
-    C --> D[Push to GHCR]
-    D --> E[VM pulls images via Docker Compose]
-    E --> F[Containers running on VM]
+    GitHubRepo[GitHub Repository] -->|Push / PR merged| Actions[GitHub Actions Workflow]
+    Actions --> Build[Build Backend & Frontend Docker Images]
+    Build --> Push[Push Images to GitHub Container Registry (GHCR)]
+    Push --> Pull[VM pulls latest images via Docker Compose]
+    Pull --> Running[Containers running on VM]
 ```
 
 ### Extras

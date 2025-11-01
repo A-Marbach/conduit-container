@@ -109,7 +109,7 @@ The new deployment workflow uses GitHub Actions to:
 #### Deployment Flow
 
 ```mermaid
-flowchart LR
+flowchart TD
     GitHubRepo[GitHub Repository] -->|Push or PR merged| Actions[GitHub Actions Workflow]
     Actions --> Build[Build Docker Images]
     Build --> Push[Push to GHCR]

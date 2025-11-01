@@ -10,7 +10,7 @@ The project is designed to be easy to deploy, with persistent data storage and c
     - [Volumes](#volumes)
     - [Restarting and Stopping Containers](#restarting-and-stopping-containers)
 - [Security](#security)
-- [GitHub Actions Deployment](#github-actions-workflow)
+- [GitHub Actions Deployment](#github-actions-deployment)
 - [Extras](#extras)
 
 ## Quickstart
@@ -110,18 +110,11 @@ The new deployment workflow uses GitHub Actions to:
 
 ```mermaid
 flowchart LR
-    A[GitHub Repository] -->|Push/PR merged| B[GitHub Actions Workflow]
-    B --> C[Build Backend & Frontend Docker Images]
-    C --> D[Push Images to GitHub Container Registry GHCR]
-    D --> E[VM pulls latest images via Docker Compose]
+    A[GitHub Repository] -->|Push / PR merged| B[GitHub Actions Workflow]
+    B --> C[Build Docker Images]
+    C --> D[Push to GHCR]
+    D --> E[VM pulls images via Docker Compose]
     E --> F[Containers running on VM]
-
-    style A fill:#f9f,stroke:#333,stroke-width:2px
-    style B fill:#bbf,stroke:#333,stroke-width:2px
-    style C fill:#bfb,stroke:#333,stroke-width:2px
-    style D fill:#ffb,stroke:#333,stroke-width:2px
-    style E fill:#fbf,stroke:#333,stroke-width:2px
-    style F fill:#fbb,stroke:#333,stroke-width:2px
 ```
 
 ### Extras

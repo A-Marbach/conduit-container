@@ -128,3 +128,4 @@ flowchart TD
 > Do **not** commit `.env` files to the repository, as they contain sensitive information.
 
 
+Trigger workflow

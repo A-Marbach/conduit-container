@@ -91,7 +91,7 @@ docker-compose down
 * Do not include IP addresses or credentials in the frontend code.
 
 
-### GitHub Actions Deployment
+## GitHub Actions Deployment
 
 The new deployment workflow uses GitHub Actions to:
 
@@ -112,7 +112,7 @@ The new deployment workflow uses GitHub Actions to:
 flowchart LR
     A[GitHub Repository] -->|Push/PR merged| B[GitHub Actions Workflow]
     B --> C[Build Backend & Frontend Docker Images]
-    C --> D[Push Images to GitHub Container Registry (GHCR)]
+    C --> D[Push Images to GitHub Container Registry GHCR]
     D --> E[VM pulls latest images via Docker Compose]
     E --> F[Containers running on VM]
 

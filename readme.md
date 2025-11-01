@@ -10,7 +10,7 @@ The project is designed to be easy to deploy, with persistent data storage and c
     - [Volumes](#volumes)
     - [Restarting and Stopping Containers](#restarting-and-stopping-containers)
 - [Security](#security)
-- [GitHub Actions Workflow](#github-actions-workflow)
+- [GitHub Actions Deployment](#github-actions-workflow)
 - [Extras](#extras)
 
 ## Quickstart
@@ -18,6 +18,7 @@ The project is designed to be easy to deploy, with persistent data storage and c
 ### Prerequisites
 - Docker
 - Docker Compose
+- GitHub Actions enabled (for automated build & deployment)
 
 ### Steps
 1. Clone this repository:
@@ -90,18 +91,38 @@ docker-compose down
 * Do not include IP addresses or credentials in the frontend code.
 
 
-### GitHub Actions Workflow
+### GitHub Actions Deployment
 
-The deployment workflow is defined in `.github/workflows/deployment.yaml`.  
-It handles:
+The new deployment workflow uses GitHub Actions to:
 
-- SSH connection to the VM using repository secrets
-- Pulling the latest code from the branch
-- Building and starting containers via Docker Compose in detached mode
-- Stopping the workflow if any step fails
+1. Build backend & frontend images
 
-> **Note:** Make sure this file is committed to the repository, otherwise GitHub Actions will not be able to run the workflow.
+2. Push them to GitHub Container Registry (GHCR)
 
+3. Update containers on the VM via Docker Compose
+
+> **Note:** The VM no longer builds images itself – it only pulls the pre-built images from GHCR.
+
+* Workflow file: .github/workflows/deployment.yaml
+* Requirements: SSH key & GHCR Personal Access Token stored as repository secrets.
+
+#### Deployment Flow
+
+```mermaid
+flowchart LR
+    A[GitHub Repository] -->|Push/PR merged| B[GitHub Actions Workflow]
+    B --> C[Build Backend & Frontend Docker Images]
+    C --> D[Push Images to GitHub Container Registry (GHCR)]
+    D --> E[VM pulls latest images via Docker Compose]
+    E --> F[Containers running on VM]
+
+    style A fill:#f9f,stroke:#333,stroke-width:2px
+    style B fill:#bbf,stroke:#333,stroke-width:2px
+    style C fill:#bfb,stroke:#333,stroke-width:2px
+    style D fill:#ffb,stroke:#333,stroke-width:2px
+    style E fill:#fbf,stroke:#333,stroke-width:2px
+    style F fill:#fbb,stroke:#333,stroke-width:2px
+```
 
 ### Extras
 
@@ -114,6 +135,3 @@ It handles:
 > Do **not** commit `.env` files to the repository, as they contain sensitive information.
 
 
-# Trigger workflow test
-
-test

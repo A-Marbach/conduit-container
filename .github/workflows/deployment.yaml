@@ -34,7 +34,6 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: |
-            ghcr.io/a-marbach/conduit-backend:latest
             ghcr.io/a-marbach/conduit-backend:${{ github.sha }}
 
       # 4️⃣ Frontend-Image build & push
@@ -45,7 +44,6 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: |
-            ghcr.io/a-marbach/conduit-frontend:latest
             ghcr.io/a-marbach/conduit-frontend:${{ github.sha }}
       # 5️⃣ Setup SSH key
       - name: Setup SSH key
@@ -56,7 +54,7 @@ jobs:
       # 5️⃣ Copy compose and env to server
       - name: Copy compose and env to server
         run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa docker-compose.yml .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/conduit-container/
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $GITHUB_WORKSPACE/docker-compose.yml $GITHUB_WORKSPACE/.env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/conduit-container/
 
       # 6️⃣ Deploy to VM via SSH 
       - name: Deploy to VM via SSH
@@ -69,6 +67,8 @@ jobs:
           script: |
             set -e
             cd ~/conduit-container
+            export FRONTEND_VERSION=${{ github.sha }}
+            export BACKEND_VERSION=${{ github.sha }}
             docker-compose pull
             docker-compose down
             docker-compose up -d --force-recreate

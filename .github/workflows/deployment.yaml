@@ -51,12 +51,12 @@ jobs:
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-      # 5️⃣ Copy compose to server
-      - name: Copy compose and env to server
+      # 6️⃣ Copy compose to server
+      - name: Copy compose to server
         run: |
           scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $GITHUB_WORKSPACE/docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/conduit-container/
 
-      # 6️⃣ Deploy to VM via SSH 
+      # 7️⃣ Deploy to VM via SSH
       - name: Deploy to VM via SSH
         uses: appleboy/ssh-action@v1.2.2
         with:

@@ -12,13 +12,13 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1️⃣ Repository auschecken
+      # 1️⃣ Checkout repository 
       - name: Checkout repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           submodules: recursive
 
-      # 2️⃣ Login bei GitHub Container Registry
+      # 2️⃣ Login in GitHub Container Registry
       - name: Login to GHCR
         uses: docker/login-action@v3
         with:
@@ -26,9 +26,9 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GHCR_PAT }}
 
-      # 3️⃣ Backend-Image bauen & pushen
+      # 3️⃣ Backend-Image build & push
       - name: Build & push backend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./backend/Dockerfile
@@ -37,9 +37,9 @@ jobs:
             ghcr.io/a-marbach/conduit-backend:latest
             ghcr.io/a-marbach/conduit-backend:${{ github.sha }}
 
-      # 4️⃣ Frontend-Image bauen & pushen
+      # 4️⃣ Frontend-Image build & push
       - name: Build & push frontend
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ./frontend
           file: ./frontend/Dockerfile
@@ -48,18 +48,24 @@ jobs:
             ghcr.io/a-marbach/conduit-frontend:latest
             ghcr.io/a-marbach/conduit-frontend:${{ github.sha }}
 
-      # 5️⃣ Deployment auf VM
+      # 5️⃣ Copy compose and env to server
+      - name: Copy compose and env to server
+        run: |
+           scp -o StrictHostKeyChecking=no -i ${{ secrets.SSH_KEY }} docker-compose.yml .env ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/conduit-container/
+
+
+      # 6️⃣ Deploy to VM via SSH 
       - name: Deploy to VM via SSH
-        uses: appleboy/ssh-action@v0.1.7
+        uses: appleboy/ssh-action@v1.2.2
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
-          port: 22
+          port: ${{ secrets.SSH_PORT }}
           script: |
             set -e
             cd ~/conduit-container
-            echo "${{ secrets.GHCR_PAT }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
             docker-compose pull
+            docker-compose down
             docker-compose up -d --force-recreate
             docker image prune -f

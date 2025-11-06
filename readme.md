@@ -9,6 +9,8 @@ The project is designed to be easy to deploy, with persistent data storage and c
     - [Environment Variables](#environment-variables)
     - [Volumes](#volumes)
     - [Restarting and Stopping Containers](#restarting-and-stopping-containers)
+- [Security](#security)
+- [GitHub Actions Deployment](#github-actions-deployment)
 - [Extras](#extras)
 
 ## Quickstart
@@ -16,6 +18,7 @@ The project is designed to be easy to deploy, with persistent data storage and c
 ### Prerequisites
 - Docker
 - Docker Compose
+- GitHub Actions enabled (for automated build & deployment)
 
 ### Steps
 1. Clone this repository:
@@ -28,7 +31,7 @@ cd conduit-container
 ```bash
 git submodule update --init --recursive
 ```
-3. Copy the example environment files:
+3. Copy the example environment file:
 
 ```bash
 cp backend/.env.example backend/.env
@@ -67,7 +70,6 @@ You can modify .env files or the environment: section in docker-compose.yaml for
 | DATABASE_PASSWORD  | Database password                 | password                    |
 | DATABASE_HOST      | Database host                     | db                          |
 | DATABASE_PORT      | Database port                     | 5432                        |
-| FRONTEND_API_URL   | Backend API URL for frontend      | http://localhost:5000/api/  |
 ```
 ## Volumes
 
@@ -84,6 +86,36 @@ Restart and Stopping containers:
 docker-compose restart
 docker-compose down
 ```
+## Security
+* Do not commit .env files, SSH keys, passwords, or any sensitive information to the repository.
+* Do not include IP addresses or credentials in the frontend code.
+
+
+## GitHub Actions Deployment
+
+The new deployment workflow uses GitHub Actions to:
+
+1. Build backend & frontend images
+
+2. Push them to GitHub Container Registry (GHCR)
+
+3. Update containers on the VM via Docker Compose
+
+> **Note:** The VM no longer builds images itself – it only pulls the pre-built images from GHCR.
+
+* Workflow file: .github/workflows/deployment.yaml
+* Requirements: SSH key & GHCR Personal Access Token stored as repository secrets.
+
+#### Deployment Flow
+
+```mermaid
+flowchart TD
+    GitHubRepo[GitHub Repository] -->|Push or PR merged| Actions[GitHub Actions Workflow]
+    Actions --> Build[Build Docker Images]
+    Build --> Push[Push to GHCR]
+    Push --> Pull[VM pulls images with Docker Compose]
+    Pull --> Running[Containers running on VM]
+```
 
 ### Extras
 
@@ -94,3 +126,6 @@ docker-compose down
 > **Note:**  
 > Edit the `.env` files if you want custom credentials.  
 > Do **not** commit `.env` files to the repository, as they contain sensitive information.
+
+
+Trigger workflow

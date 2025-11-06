@@ -1,0 +1,75 @@
+name: Deploy Conduit to VM
+
+on:
+  push:
+    branches:
+      - main
+      - feature
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout repository 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      # 2️⃣ Login in GitHub Container Registry
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GHCR_PAT }}
+
+      # 3️⃣ Backend-Image build & push
+      - name: Build & push backend
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./backend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/a-marbach/conduit-backend:${{ github.sha }}
+
+      # 4️⃣ Frontend-Image build & push
+      - name: Build & push frontend
+        uses: docker/build-push-action@v6
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/a-marbach/conduit-frontend:${{ github.sha }}
+      # 5️⃣ Setup SSH key
+      - name: Setup SSH key
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+      # 6️⃣ Copy compose to server
+      - name: Copy compose to server
+        run: |
+          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $GITHUB_WORKSPACE/docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/conduit-container/
+
+      # 7️⃣ Deploy to VM via SSH
+      - name: Deploy to VM via SSH
+        uses: appleboy/ssh-action@v1.2.2
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            set -e
+            cd ~/conduit-container
+            export FRONTEND_VERSION=${{ github.sha }}
+            export BACKEND_VERSION=${{ github.sha }}
+            docker-compose pull
+            docker-compose down
+            docker-compose up -d --force-recreate
+            docker image prune -f

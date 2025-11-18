@@ -1,6 +1,6 @@
 services:
   frontend:
-    image: ghcr.io/a-marbach/conduit-frontend:${FRONTEND_VERSION}
+    image: ghcr.io/a-marbach/conduit-frontend:${FRONTEND_VERSION:-latest}
     ports:
       - "8282:80"
     volumes:
@@ -8,7 +8,7 @@ services:
     restart: on-failure
 
   backend:
-    image: ghcr.io/a-marbach/conduit-backend:${BACKEND_VERSION}
+    image: ghcr.io/a-marbach/conduit-backend:${BACKEND_VERSION:-latest}
     ports:
       - "5000:5000"
     volumes:

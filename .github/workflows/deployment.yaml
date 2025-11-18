@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - feature
   workflow_dispatch:
 
 jobs:
@@ -33,6 +34,7 @@ jobs:
           file: ./backend/Dockerfile
           push: true
           tags: |
+            ghcr.io/a-marbach/conduit-backend:latest
             ghcr.io/a-marbach/conduit-backend:${{ github.sha }}
 
       # 4️⃣ Frontend-Image build & push
@@ -43,6 +45,7 @@ jobs:
           file: ./frontend/Dockerfile
           push: true
           tags: |
+            ghcr.io/a-marbach/conduit-frontend:latest
             ghcr.io/a-marbach/conduit-frontend:${{ github.sha }}
       # 5️⃣ Setup SSH key
       - name: Setup SSH key

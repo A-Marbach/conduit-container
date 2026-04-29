@@ -18,7 +18,7 @@ jobs:
       - name: Build backend for scanning
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ./backend
           file: ./backend/Dockerfile
           push: false
           load: true

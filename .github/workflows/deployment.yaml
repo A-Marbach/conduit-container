@@ -12,9 +12,17 @@ jobs:
   scan:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
+      - name: Checkout with submodules
         uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
 
+      - name: List files (debug)
+        run: |
+          ls -la backend/
+          ls -la frontend/
+          
       - name: Build backend for scanning
         uses: docker/build-push-action@v6
         with:

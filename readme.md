@@ -45,8 +45,8 @@ docker-compose up -d
 ```
 
 5. Open the application in your browser:
-* Frontend: http://<your_vm_ip>:8282
-* Backend API: http://<your_vm_ip>:5000/admin/
+* Frontend: `http://<your_vm_ip>:8282`
+* Backend API: `http://<your_vm_ip>:5000/admin/`
 
 
 ## Usage

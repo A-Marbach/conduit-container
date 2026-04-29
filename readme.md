@@ -90,6 +90,15 @@ docker-compose down
 * Do not commit .env files, SSH keys, passwords, or any sensitive information to the repository.
 * Do not include IP addresses or credentials in the frontend code.
 
+### Automated Security Scans (CI/CD)
+
+Every push triggers automated security checks before any image is built or deployed:
+
+- **Dockerfile Linting** – Both `backend/Dockerfile` and `frontend/Dockerfile` are linted with [Hadolint](https://github.com/hadolint/hadolint). The pipeline fails on any `error`-level finding.
+- **Container Image Scanning** – After a local build, both images are scanned with [Trivy](https://github.com/aquasecurity/trivy) for known vulnerabilities at severity `HIGH` and `CRITICAL`.
+
+Build and deployment only proceed if both checks pass.
+
 
 ## GitHub Actions Deployment
 

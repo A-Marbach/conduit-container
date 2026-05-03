@@ -104,9 +104,7 @@ Push to GitHub
        ↓
 Stage 1: Secret Detection (Gitleaks) 🔴 CRITICAL
        ↓
-Stage 2: Code Quality & Dependencies (npm audit + SonarQube) 🟡 INFO
-       ↓
-Stage 3: Infrastructure & Containers (Hadolint + Trivy) 🔴 + 🟡
+Stage 2: Infrastructure & Containers (Hadolint + Trivy) 🔴 + 🟡
        ↓
 Build & Push Docker Images (GHCR)
        ↓
@@ -121,24 +119,7 @@ Deploy to VM
 - Configuration: `.gitleaks.toml`
 - **Status:** 🔴 **CRITICAL** – Pipeline fails if secrets detected
 
-#### Stage 2: Code Quality & Dependencies
-**Tools:** npm audit, [SonarQube Cloud](https://sonarcloud.io/projects/conduit)
-
-**npm audit:**
-- Audits `package.json` for known vulnerabilities (CVEs) in backend and frontend dependencies.
-- Checks at `--audit-level=moderate` (detects HIGH and CRITICAL issues).
-- Provides detailed vulnerability reports with fix recommendations.
-- **Status:** 🟡 **INFO** – Reported but doesn't block build
-
-**SonarQube (SAST - Static Application Security Testing):**
-- Performs deep code analysis on backend (`backend/src`) and frontend (`frontend/src`).
-- Detects security hotspots: SQL Injection, Cross-Site Scripting (XSS), Broken Authentication, Insecure Deserialization, Hard-coded credentials, Missing input validation.
-- Analyzes code quality: Code smells, duplications, tech debt, test coverage gaps, maintainability ratings.
-- Results available at: [SonarCloud Dashboard](https://sonarcloud.io/projects/conduit)
-- Exclusions: `node_modules/`, `dist/`, `coverage/`
-- **Status:** 🟡 **INFO** – Reported but doesn't block build
-
-#### Stage 3: Infrastructure & Container Scanning
+#### Stage 2: Infrastructure & Container Scanning
 **Tools:** [Hadolint](https://github.com/hadolint/hadolint), [Trivy](https://github.com/aquasecurity/trivy)
 
 **Dockerfile Linting (Hadolint):**
@@ -159,14 +140,14 @@ Deploy to VM
 
 ## GitHub Actions Deployment
 
-The deployment workflow uses GitHub Actions to automate the entire build, test, security scan, and deployment process.
+The deployment workflow uses GitHub Actions to automate the entire build, security scan, and deployment process.
 
 ### Workflow Overview
 
 ```
 1. Code Push to GitHub
    ↓
-2. Run Security Scans (Gitleaks, npm audit, SonarQube, Hadolint, Trivy)
+2. Run Security Scans (Gitleaks, Hadolint, Trivy)
    ↓
 3. Build Docker Images (backend & frontend)
    ↓
@@ -188,8 +169,6 @@ Store these in GitHub repository settings under **Settings → Secrets and varia
 | `SSH_USER` | SSH username for VM deployment | `deploy` |
 | `SSH_KEY` | SSH private key for authentication | (Multi-line private key) |
 | `SSH_PORT` | SSH port | `22` |
-| `SONAR_TOKEN` | SonarQube Cloud authentication token | `squ_1234567890...` |
-| `SONAR_HOST_URL` | SonarQube Cloud URL | `https://sonarcloud.io` |
 
 ### Notes
 - The VM **no longer builds images itself** – it only pulls pre-built images from GHCR.
@@ -202,8 +181,7 @@ Store these in GitHub repository settings under **Settings → Secrets and varia
 flowchart TD
     GitHubRepo[GitHub Repository] -->|Push to main/feature| Actions[GitHub Actions Workflow]
     Actions --> Gitleaks["🔴 Gitleaks (Secrets)"]
-    Gitleaks --> Quality["🟡 npm audit + SonarQube"]
-    Quality --> Infra["🔴 Hadolint + Trivy"]
+    Gitleaks --> Infra["🔴 Hadolint + Trivy"]
     Infra --> Build["Build Docker Images"]
     Build --> Push["Push to GHCR"]
     Push --> SSH["SSH to VM"]
@@ -216,8 +194,7 @@ flowchart TD
 ## Extras
 
 * You can add additional frontend features or backend services as needed.
-* Extend the security pipeline by adding more scanning tools (e.g., OWASP Dependency-Check, etc.).
-* Monitor the SonarQube dashboard regularly to track code quality trends.
+* Extend the security pipeline by adding more scanning tools (e.g., npm audit, OWASP Dependency-Check, etc.).
 
 ---
 
@@ -233,11 +210,6 @@ flowchart TD
 2. Fix the Dockerfile issue.
 3. Commit and push.
 
-### SonarQube Scan Not Running
-1. Verify `SONAR_TOKEN` and `SONAR_HOST_URL` are set in GitHub Secrets.
-2. Check that the organization exists on SonarCloud.
-3. Ensure the project key is correct.
-
 ---
 
 > **Note:**  
@@ -247,4 +219,4 @@ flowchart TD
 
 ---
 
-**DevSecOps Status:** ✅ Full security pipeline implemented (Gitleaks, npm audit, SonarQube, Hadolint, Trivy)
+**DevSecOps Status:** ✅ Full security pipeline implemented (Gitleaks, Hadolint, Trivy)

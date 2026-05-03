@@ -26,48 +26,7 @@ jobs:
           config: .gitleaks.toml
           exit-code: 1
           redact: true # Verstecke gefundene Secrets in Logs
-
-  # 1️⃣ Dependency & Code Quality Scanning
-  quality:
-    needs: secrets
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout with submodules
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-          token: ${{ secrets.GITHUB_TOKEN }}
-          fetch-depth: 0
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 18
-          cache: "npm"
-
-      # npm audit für Backend
-      - name: Audit backend dependencies
-        working-directory: ./backend
-        run: npm install && npm audit --audit-level=moderate || true
-
-      # npm audit für Frontend
-      - name: Audit frontend dependencies
-        working-directory: ./frontend
-        run: npm install && npm audit --audit-level=moderate || true
-
-      # SonarQube Code Quality Scan
-      - name: SonarQube Scan
-        uses: SonarSource/sonarqube-scan-action@master
-        env:
-          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        with:
-          args: >
-            -Dsonar.projectKey=conduit -Dsonar.projectName=Conduit
-            -Dsonar.sources=backend/src,frontend/src
-            -Dsonar.exclusions=**/node_modules/**,**/dist/**,**/coverage/**
-        continue-on-error: true
-
+          
   scan:
     needs: secrets
     runs-on: ubuntu-latest

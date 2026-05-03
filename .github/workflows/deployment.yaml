@@ -48,12 +48,12 @@ jobs:
       # npm audit für Backend
       - name: Audit backend dependencies
         working-directory: ./backend
-        run: npm ci && npm audit --audit-level=moderate || true
+        run: npm install && npm audit --audit-level=moderate || true
 
       # npm audit für Frontend
       - name: Audit frontend dependencies
         working-directory: ./frontend
-        run: npm ci && npm audit --audit-level=moderate || true
+        run: npm install && npm audit --audit-level=moderate || true
 
       # SonarQube Code Quality Scan
       - name: SonarQube Scan

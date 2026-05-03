@@ -1,0 +1,85 @@
+# Gitleaks Configuration für Conduit
+# Spec: https://github.com/gitleaks/gitleaks/wiki/Config-Tips-and-Tricks
+
+title = "Conduit Gitleaks Config"
+
+[build]
+branches = ["main", "feature", "develop"]
+allow-missing-config = false
+
+[allowlist]
+description = "Allowlist für zertifizierte Exceptions"
+
+# Paths die nicht gescannt werden (HAUPTLISTE)
+paths = [
+    "(?i)vendor/",
+    "(?i)node_modules/",
+    "(?i)\\.git/",
+    "(?i)dist/",
+    "(?i)build/",
+    "(?i)coverage/",
+    "(?i)src/config\\.example\\.js",
+    "(?i)README\\.md",
+    ".*\\.lock",
+    ".*package-lock\\.json",
+]
+
+# Commits ignorieren (wenn nötig)
+commits = []
+
+# Regexes für False Positives (wenn nötig)
+regexes = []
+
+# ============================================
+# CUSTOM RULES - SECRETS DETECTION
+# ============================================
+
+[[rules]]
+description = "AWS API Key"
+id = "aws-api-key-id"
+regex = '''(?i)aws(.{0,20})?(?-i)['\"][0-9a-zA-Z/+]{40}['\"]'''
+keywords = ["aws"]
+secretGroup = 1
+
+[[rules]]
+description = "Private Key"
+id = "private-key"
+regex = '''-----BEGIN (?:RSA|DSA|EC) PRIVATE KEY-----'''
+keywords = ["private", "key"]
+
+[[rules]]
+description = "GitHub Personal Access Token"
+id = "github-pat"
+regex = '''ghp_[0-9a-zA-Z]{36}'''
+keywords = ["github", "token", "pat"]
+
+[[rules]]
+description = "OpenAI API Key"
+id = "openai-api-key"
+regex = '''sk-[a-zA-Z0-9]{20,}'''
+keywords = ["openai", "sk-", "api"]
+
+[[rules]]
+description = "MongoDB Connection String"
+id = "mongodb-uri"
+regex = '''mongodb(\+srv)?://[^\s]+:[^\s]+@'''
+keywords = ["mongodb", "mongo"]
+
+[[rules]]
+description = "Firebase API Key"
+id = "firebase-api-key"
+regex = '''AIza[0-9A-Za-z\-_]{35}'''
+keywords = ["firebase", "api"]
+
+[[rules]]
+description = "Slack Token"
+id = "slack-token"
+regex = '''xox[baprs]-[0-9]{10,12}-[0-9]{10,12}-[0-9a-zA-Z]{24,34}'''
+keywords = ["slack", "token"]
+
+[[rules]]
+id = "entropy-base64"
+description = "Base64-encoded secret (likely API key or token)"
+regex = '''[A-Za-z0-9+/]{20,}={0,2}'''
+entropy = 4.0
+keywords = ["api", "key", "token", "secret", "password"]

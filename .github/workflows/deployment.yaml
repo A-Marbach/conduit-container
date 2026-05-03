@@ -8,8 +8,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  # 1️⃣ Scan Images vor dem Build
-  scan:
+
+  # 0️⃣ Gitleaks - Secret Detection (FIRST - vor allem anderen!)
+  secrets:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout with submodules
@@ -17,7 +18,24 @@ jobs:
         with:
           submodules: recursive
           token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 0 # Full history für Gitleaks
 
+      - name: Run Gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        with:
+          config: .gitleaks.toml
+          exit-code: 1
+          redact: true # Verstecke gefundene Secrets in Logs
+
+  scan:
+    needs: secrets
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Lint backend Dockerfile
         uses: hadolint/hadolint-action@v3.1.0

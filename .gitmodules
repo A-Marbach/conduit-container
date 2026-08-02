@@ -1,6 +1,7 @@
 [submodule "backend"]
-	path = backend
-	url = git@github.com:A-Marbach/conduit-backend.git
+    path = backend
+    url = https://github.com/A-Marbach/conduit-backend.git
+
 [submodule "frontend"]
-	path = frontend
-	url = git@github.com:A-Marbach/conduit-frontend.git
+    path = frontend
+    url = https://github.com/A-Marbach/conduit-frontend.git

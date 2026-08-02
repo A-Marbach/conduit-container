@@ -138,33 +138,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+    - uses: actions/checkout@v4
 
-      - name: Setup SSH key
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
-          ssh-keyscan -H ${{ secrets.SSH_HOST }} >> ~/.ssh/known_hosts 2>/dev/null
+    - name: Deploy to EC2
+      uses: appleboy/ssh-action@v1.2.2
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ubuntu
+        key: ${{ secrets.EC2_SSH_KEY }}
+        script: |
+          set -e
+          cd /opt/conduit
+          docker compose pull
+          docker compose up -d --remove-orphans
 
-      - name: Copy compose to server
-        run: |
-          scp -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $GITHUB_WORKSPACE/docker-compose.yaml ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }}:~/conduit-container/
+          # Health Check
+          docker compose ps
+          curl -f http://localhost || exit 1
 
-      - name: Deploy to VM
-        uses: appleboy/ssh-action@v1.2.2
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_KEY }}
-          port: ${{ secrets.SSH_PORT }}
-          script: |
-            set -e
-            cd ~/conduit-container
-            export FRONTEND_VERSION=${{ github.sha }}
-            export BACKEND_VERSION=${{ github.sha }}
-            docker compose pull
-            docker compose down
-            docker compose up -d --force-recreate
-            docker image prune -f
+          docker image prune -f

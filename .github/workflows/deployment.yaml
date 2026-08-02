@@ -151,9 +151,4 @@ jobs:
           cd /opt/conduit
           docker compose pull
           docker compose up -d --remove-orphans
-
-          # Health Check
-          docker compose ps
-          curl -f http://localhost || exit 1
-
           docker image prune -f

@@ -1,7 +1,7 @@
 # Conduit Docker Project
 
 This repository contains a Docker Compose setup for running the Conduit application, including a Node.js/Express backend and an Angular frontend.  
-The project is designed to be easy to deploy, with persistent data storage, configurable environment variables, and **enterprise-grade security scanning**.
+The project is designed to be easy to deploy, with persistent data storage, configurable environment variables, and **Automated DevSecOps security scanning**.
 
 ## Table of Contents
 - [Quickstart](#quickstart)
@@ -39,8 +39,8 @@ cp backend/.env.example backend/.env
 
 4. Build the containers:
 ```bash
-docker-compose build --no-cache
-docker-compose up -d
+docker compose build --no-cache
+docker compose up -d
 ```
 
 5. Open the application in your browser:
@@ -57,14 +57,14 @@ Make sure all environment variables are correctly set before starting.
 
 ## Environment Variables
 
-You can modify `.env` files or the `environment:` section in `docker-compose.yaml` for a secure deployment:
+Environment-specific configuration is provided through .env files and environment variables. Sensitive values must not be committed to the repository.
 
 | Variable           | Description                       | Default                     |
 |--------------------|-----------------------------------|-----------------------------|
-| DJANGO_SECRET_KEY  | Django secret key                 | changeme                    |
-| DATABASE_NAME      | Name of the PostgreSQL/SQLite DB  | conduit                     |
+| DJANGO_SECRET_KEY  | Django secret key                 | Set via  `.env`             |
+| DATABASE_NAME      | Name of the PostgreSQL database   | conduit                     |
 | DATABASE_USER      | Database username                 | user                        |
-| DATABASE_PASSWORD  | Database password                 | password                    |
+| DATABASE_PASSWORD  | Database password                 | Set via  `.env`             |
 | DATABASE_HOST      | Database host                     | db                          |
 | DATABASE_PORT      | Database port                     | 5432                        |
 
@@ -79,10 +79,10 @@ Volumes ensure data persists even after container restarts or recreation.
 
 ```bash
 # Restart containers
-docker-compose restart
+docker compose restart
 
 # Stop and remove containers
-docker-compose down
+docker compose down
 ```
 
 ## Security
@@ -95,7 +95,7 @@ docker-compose down
 
 ### Automated Security Scanning (CI/CD Pipeline)
 
-Every push triggers a **multi-stage security pipeline** before any image is built or deployed. The pipeline implements **DevSecOps best practices** with security gates at each stage.
+Every push triggers a multi-stage CI/CD pipeline with integrated security checks before the application is deployed. The pipeline implements DevSecOps best practices with security gates throughout the build and deployment process.
 
 #### Security Pipeline Flow
 
@@ -104,9 +104,13 @@ Push to GitHub
        ↓
 Stage 1: Secret Detection (Gitleaks) 🔴 CRITICAL
        ↓
-Stage 2: Infrastructure & Containers (Hadolint + Trivy) 🔴 + 🟡
+Stage 2: Dockerfile Linting (Hadolint) 🔴 CRITICAL
        ↓
-Build & Push Docker Images (GHCR)
+Build Docker Images
+       ↓
+Stage 3: Container Image Scanning (Trivy) 🟡 INFO
+       ↓
+Push Docker Images to GHCR
        ↓
 Deploy to VM
 ```
@@ -147,13 +151,17 @@ The deployment workflow uses GitHub Actions to automate the entire build, securi
 ```
 1. Code Push to GitHub
    ↓
-2. Run Security Scans (Gitleaks, Hadolint, Trivy)
+2. Secret Detection (Gitleaks)
    ↓
-3. Build Docker Images (backend & frontend)
+3. Dockerfile Linting (Hadolint)
    ↓
-4. Push to GitHub Container Registry (GHCR)
+4. Build Docker Images (backend & frontend)
    ↓
-5. Deploy to VM (pull images, restart containers)
+5. Container Image Scanning (Trivy)
+   ↓
+6. Push Docker Images to GHCR
+   ↓
+7. Deploy to VM
 ```
 
 ### Workflow File
@@ -172,21 +180,22 @@ Store these in GitHub repository settings under **Settings → Secrets and varia
 
 ### Notes
 - The VM **no longer builds images itself** – it only pulls pre-built images from GHCR.
-- All security checks run **before** any image is built or pushed.
+- Security checks are integrated throughout the pipeline. Gitleaks and Hadolint run before the image build, while Trivy scans the built images before they are pushed to GHCR.
 - Deployment is fully automated after successful security gates.
 
 ### Deployment Flow Diagram
 
 ```mermaid
 flowchart TD
-    GitHubRepo[GitHub Repository] -->|Push to main/feature| Actions[GitHub Actions Workflow]
-    Actions --> Gitleaks["🔴 Gitleaks (Secrets)"]
-    Gitleaks --> Infra["🔴 Hadolint + Trivy"]
-    Infra --> Build["Build Docker Images"]
-    Build --> Push["Push to GHCR"]
+   GitHubRepo[GitHub Repository] -->|Push to main/feature| Actions[GitHub Actions Workflow]
+    Actions --> Gitleaks["Gitleaks - Secret Detection"]
+    Gitleaks --> Hadolint["Hadolint - Dockerfile Linting"]
+    Hadolint --> Build["Build Docker Images"]
+    Build --> Trivy["Trivy - Container Image Scan"]
+    Trivy --> Push["Push Images to GHCR"]
     Push --> SSH["SSH to VM"]
     SSH --> Compose["Docker Compose Pull & Up"]
-    Compose --> Running["✅ Containers Running"]
+    Compose --> Running["Containers Running"]
 ```
 
 ---
@@ -202,7 +211,7 @@ flowchart TD
 
 ### Workflow Failed: "Gitleaks found leaks"
 1. Check the GitHub Actions logs to see which file has the secret.
-2. Remove or move the secret to `.env` (which is in `.gitignore`).
+2. Remove the secret from the repository, rotate/revoke it if necessary, and store the replacement in GitHub Secrets or a local .env file excluded from version control.
 3. Commit the fix and push again.
 
 ### Workflow Failed: "Hadolint error in Dockerfile"
@@ -219,4 +228,4 @@ flowchart TD
 
 ---
 
-**DevSecOps Status:** ✅ Full security pipeline implemented (Gitleaks, Hadolint, Trivy)
+**DevSecOps Status:** ✅ Security scanning pipeline implemented (Gitleaks, Hadolint, Trivy)
